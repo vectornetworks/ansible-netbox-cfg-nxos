@@ -14,7 +14,7 @@ These playbooks were tested against a 1 Spine, 2 Leaf NX-OS topology built on NX
 ### In summary, here's what you need
 * An Ansible control node (from which to run the playbooks)
 * An Ansible inventory with hostnames that match the Netbox device names
-* A Netbox instance populated with data from the [Vagrant Baselab repository](https://github.com/vectornetworks/netbox-vagrant-baselab) 
+* A Netbox instance populated with data from the [Vagrant Baselab repository](https://github.com/vectornetworks/netbox-vagrant-baselab), using data from the **ls_data_n9kv.yaml** file.
 * A 1 Spine, 2 Leaf NX-OS topology with the NXAPI enabled running over standard HTTP.
 
 ## Running the Playbooks
