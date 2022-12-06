@@ -1,5 +1,5 @@
 # Overview
-This project provides an example of how Netbox data can be converted to network device configuration and applied by Ansible.  It employs Ansible to poll Netbox data and subsequently deploy a VXLAN fabric with BGP EVPN on Cisco NX-OS.  This project is a more advanced version of our previous Arista cEOS project [here](https://github.com/vectornetworks/ansible-netbox-cfg-eos) because it includes a fully BGP EVPN feature set and testing functionality.
+This project provides an example of how Netbox data can be converted to network device configuration and applied by Ansible.  It employs Ansible to poll Netbox data and subsequently deploy a VXLAN fabric with BGP EVPN on Cisco NX-OS.  This project is a more advanced version of our previous Arista cEOS project [here](https://github.com/vectornetworks/ansible-netbox-cfg-eos) because it includes a full BGP EVPN feature set and testing functionality.
 
 ## Role/Playbook Information and Requirements
 
@@ -15,7 +15,7 @@ These playbooks were tested against a 1 Spine, 2 Leaf NX-OS topology built on NX
 * An Ansible control node (from which to run the playbooks)
 * An Ansible inventory with hostnames that match the Netbox device names
 * A Netbox instance populated with data from the [Vagrant Baselab repository](https://github.com/vectornetworks/netbox-vagrant-baselab), using data from the **ls_data_n9kv.yaml** file.
-* A 1 Spine, 2 Leaf NX-OS topology with the NXAPI enabled running over standard HTTP.
+* A 1 Spine, 2 Leaf NX-OS topology with the NXAPI enabled running over standard HTTP. We tested this using [this](https://github.com/vectornetworks/n9kv-vagrant-base-topo) setup in Vagrant.
 
 ## Running the Playbooks
 Prior to running the playbooks, you'll need to set your Netbox URL and API key.  This can be accomplished by setting the `NETBOX_URL` and `NETBOX_API_TOKEN` environment variables, respectively. For example:
