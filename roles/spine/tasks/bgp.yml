@@ -1,0 +1,82 @@
+# - name: Output Stuff
+#   debug:
+#     msg: "{{ bgp_sessions }}"
+
+- name: Configure base BGP peerings
+  cisco.nxos.nxos_bgp_global:
+    config:
+      as_number: "{{ bgp_asn }}"
+      router_id: "{{ router_id }}"
+      log_neighbor_changes: True
+      neighbors:
+        - neighbor_address: "{{ item.value.remote_address.address | ansible.netcommon.ipaddr('address') }}"
+          remote_as: "{{ item.value.remote_as.asn }}"  
+        - neighbor_address: "{{ leaf01_loop0 }}"
+          remote_as: "{{ item.value.remote_as.asn }}"  
+          update_source: loopback0
+          ebgp_multihop: 3
+        - neighbor_address: "{{ leaf02_loop0 }}"
+          remote_as: "{{ item.value.remote_as.asn }}"  
+          update_source: loopback0
+          ebgp_multihop: 3
+  loop: "{{ bgp_sessions }}"
+  loop_control: 
+    label: "{{ item.value.name }}"
+
+- name: Configure BGP address family
+  cisco.nxos.nxos_bgp_address_family:
+    config:
+      as_number: "{{ bgp_asn }}"
+      address_family:
+        - afi: ipv4
+          safi: unicast
+          networks:
+            - prefix: "{{ loop0_addrs[0].value.address }}"
+        - afi: l2vpn
+          safi: evpn
+          nexthop:
+            route_map: NEXT-HOP-UNCHANGED
+          retain:
+            route_target:
+              retain_all: true
+
+- name: Configure BGP neighbor address family
+  cisco.nxos.nxos_bgp_neighbor_address_family:
+    config:
+      as_number: "{{ bgp_asn }}"
+      neighbors:
+        - neighbor_address: "{{ item.value.remote_address.address | ansible.netcommon.ipaddr('address') }}"
+          address_family:
+            - afi: ipv4
+              safi: unicast
+              allowas_in:
+                set: true
+                max_occurences: 3
+              disable_peer_as_check: true
+        - neighbor_address: "{{ leaf01_loop0 }}"
+          address_family:
+            - afi: l2vpn
+              safi: evpn
+              allowas_in:
+                set: true
+                max_occurences: 3
+              disable_peer_as_check: true
+              send_community:
+                both: true
+              route_map:
+                outbound: NEXT-HOP-UNCHANGED
+        - neighbor_address: "{{ leaf02_loop0 }}"
+          address_family:
+            - afi: l2vpn
+              safi: evpn
+              allowas_in:
+                set: true
+                max_occurences: 3
+              disable_peer_as_check: true
+              send_community:
+                both: true
+              route_map:
+                outbound: NEXT-HOP-UNCHANGED
+  loop: "{{ bgp_sessions }}"
+  loop_control: 
+    label: "{{ item.value.name }}"

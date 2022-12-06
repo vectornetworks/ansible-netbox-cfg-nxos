@@ -1,0 +1,13 @@
+- hosts: all
+  name: Run a command and output
+  gather_facts: false
+  become: false
+  vars:
+  tasks:
+    - name: Run a command
+      register: outvar
+      cisco.nxos.nxos_command:
+        commands: show version
+    - name: Print command contents
+      debug:
+        msg: "{{ outvar }}"

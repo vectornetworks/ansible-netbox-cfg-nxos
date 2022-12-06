@@ -1,0 +1,46 @@
+- name: Configure Base Interfaces as L3
+  cisco.nxos.nxos_interfaces: 
+    config:
+    - name: "{{ item.value.name | regex_search('Ethernet[0-9]+\/[0-9]+')}}"
+      enabled: true
+      mode: layer3
+    state: merged
+  loop: "{{ ext_intfs }}"
+  loop_control:
+    label: "{{ item.value.name }}"
+
+- name: Create Interfaces
+  cisco.nxos.nxos_interfaces: 
+    config:
+    - name: "{{ item.value.name }}"
+      enabled: true
+    state: merged
+  loop: "{{ ext_intfs }}"
+  loop_control:
+    label: "{{ item.value.name }}"
+
+- name: Add VRFs to External Interfaces
+  cisco.nxos.nxos_vrf_interface:
+    interface: "{{ item.value.name }}"
+    vrf: "{{ item.value.vrf.name }}" 
+    state: present
+  loop: "{{ ext_intfs }}"
+  loop_control:
+    label: "{{ inventory_hostname }}/{{ item.value.name }}"
+
+- name: Configure External Interface IP addresses
+  cisco.nxos.nxos_l3_interfaces:
+    config:
+      - name: "{{ item.value.name }}" 
+        dot1q: "{{ item.value.name | regex_replace('Ethernet[0-9]+\\/[0-9]+\\.([0-9]+)', '\\1')}}"
+        ipv4:
+          - address: "{{ ext_ips[0].value.address }}"
+  when: ext_ips 
+  loop: "{{ ext_intfs }}"
+  loop_control: 
+    label: "{{ item.value.name }}"
+  vars:
+    ext_ips:  "{{ query('netbox.netbox.nb_lookup', 'ip-addresses',
+                  api_endpoint=nb_api_endpoint,
+                  api_filter='interface_id=' ~ item.value.id,
+                  token=nb_api_token) }}"

@@ -1,0 +1,15 @@
+- name: Congfiguring NVE interface attributes 
+  cisco.nxos.nxos_vxlan_vtep:
+    interface: nve1
+    host_reachability: true
+    source_interface: loopback0
+    global_mcast_group_L2: 239.0.0.1
+
+- name: Adding VNIs to NVE
+  cisco.nxos.nxos_vxlan_vtep_vni:
+    interface: nve1
+    vni: "{{ item.value.identifier }}"
+    assoc_vrf: "{{ item.value.custom_fields.vnivrf | ternary(true, false, omit) }}" 
+  loop: "{{ vnis }}"
+  loop_control:
+    label: "{{ item.value.display }}"

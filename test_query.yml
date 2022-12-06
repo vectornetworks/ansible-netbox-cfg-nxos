@@ -1,0 +1,94 @@
+- hosts: all
+  name: Output Stuff
+  gather_facts: false
+  become: true
+  vars:
+    nb_api_endpoint: "{{ lookup('ansible.builtin.env', 'NETBOX_URL') }}"
+    nb_api_token: "{{ lookup('ansible.builtin.env', 'NETBOX_API_TOKEN') }}"
+    vrfs: "{{ query('netbox.netbox.nb_lookup', 'vrfs',
+                    api_endpoint=nb_api_endpoint,
+                    token=nb_api_token) }}"
+    svis: "{{ query('netbox.netbox.nb_lookup', 'interfaces',
+                      api_endpoint=nb_api_endpoint,
+                      api_filter='name__ic=Vlan device=' ~ inventory_hostname,
+                      token=nb_api_token) }}"
+    dev_ips:  "{{ query('netbox.netbox.nb_lookup', 'ip-addresses',
+                  api_endpoint=nb_api_endpoint,
+                  api_filter='device=' ~ inventory_hostname ,
+                  token=nb_api_token)}}"
+    vnis: "{{ query('netbox.netbox.nb_lookup', 'l2vpns',
+                          api_endpoint=nb_api_endpoint,
+                          token=nb_api_token) }}"
+    trunk_intfs: "{{ query('netbox.netbox.nb_lookup', 'interfaces',
+                      api_endpoint=nb_api_endpoint,
+                      api_filter='mode=tagged device=' ~ inventory_hostname,
+                      token=nb_api_token) }}"
+    bgp_orig: "{{ query('netbox.netbox.nb_lookup', 'ip-addresses',
+                      api_endpoint=nb_api_endpoint,
+                      api_filter='custom_fields device=' ~ inventory_hostname,
+                      token=nb_api_token) }}"
+    prefixes: "{{ query('netbox.netbox.nb_lookup', 'prefixes',
+                    api_endpoint=nb_api_endpoint,
+                    token=nb_api_token) }}"
+    vrfs_dict: "{{ vrfs | items2dict }}"
+    ext_intfs: "{{ query('netbox.netbox.nb_lookup', 'interfaces',
+                      api_endpoint=nb_api_endpoint,
+                      api_filter='name__ic=Ethernet type=virtual device=' ~ inventory_hostname,
+                      token=nb_api_token) }}"
+    bgp_sessions: "{{ query('netbox.netbox.nb_lookup', 'session',
+                              api_endpoint=nb_api_endpoint,
+                              plugin='bgp',
+                              api_filter='device=' ~ inventory_hostname,
+                              token=nb_api_token) }}"
+
+
+
+  tasks:
+
+    # - name: Output Things
+    #   debug:
+    #     msg: "{{ item | json_query('value.tagged_vlans[*].vid') | join(',') }}"
+    #   loop: "{{ trunk_intfs }}"
+
+    # - name: Output Things
+    #   debug:
+    #     msg: "{{ vrfs_dict[item.value.vrf.id].name }}"
+    #   when: item.value.custom_fields.bgp_originate 
+    #   loop: "{{ prefixes }}"
+
+    - name: Output Things
+      debug:
+        msg: "{{ item}}"
+      loop: "{{ bgp_sessions }}"
+
+    # - name: Output Things
+    #   when:
+    #     - item.value.custom_fields.staticroute
+    #     - item.value.custom_fields.origindevice
+    #     - item.value.custom_fields.origindevice.name == inventory_hostname
+    #   debug:
+    #     msg: "{{ item }}"
+    #   loop: "{{ prefixes }}"
+
+    # - name: Output Things
+    #   tags: thecoolest
+    #   debug:
+    #     msg: "{{ svi_ips[0].value.address }}"
+    #   when: svi_ips 
+    #   loop: "{{ svis }}"
+    #   loop_control: 
+    #     label: "{{ item.value.name }}"
+    #   vars:
+    #     svi_ips:  "{{ query('netbox.netbox.nb_lookup', 'ip-addresses',
+    #               api_endpoint=nb_api_endpoint,
+    #               api_filter='interface_id=' ~ item.value.id,
+    #               token=nb_api_token) }}"
+
+    # - name: Output Things
+    #   debug:
+    #     msg:  "{{ item.value.address }} {{ somevar }}"
+    #   loop: "{{ dev_ips }}"
+    #   loop_control:
+    #     label: "{{ item.value.address }}"
+    #   vars:
+    #     somevar: "{{ item.value.id }}"

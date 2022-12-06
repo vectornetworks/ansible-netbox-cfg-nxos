@@ -1,0 +1,64 @@
+- name: Configuring SVI interfaces
+  cisco.nxos.nxos_interfaces:
+    config:
+      - name: "{{ item.value.name }}"
+        enabled: true
+    state: merged
+  loop: "{{ svis }}"
+  loop_control:
+    label: "{{ inventory_hostname }}/{{ item.value.name }}"
+
+- name: Add SVIs to VRFs
+  cisco.nxos.nxos_vrf_interface:
+    interface: "{{ item.value.name }}"
+    vrf: "{{ item.value.vrf.name }}" 
+    state: present
+  loop: "{{ svis }}"
+  loop_control:
+    label: "{{ inventory_hostname }}/{{ item.value.name }}"
+
+- name: Configuring Anycast GW interfaces
+  cisco.nxos.nxos_interfaces:
+    config:
+      - name: "{{ item.value.name }}"
+        fabric_forwarding_anycast_gateway: true
+    state: merged
+  loop: "{{ anygw_svis }}"
+  loop_control:
+    label: "{{ inventory_hostname }}/{{ item.value.name }}"
+
+- name: Configuring SVI VRF interfaces - IP forward
+  cisco.nxos.nxos_interfaces:
+    config:
+      - name: "{{ item.value.name }}"
+        ip_forward: true
+    state: merged
+  loop: "{{ svivrf_svis }}"
+  loop_control:
+    label: "{{ inventory_hostname }}/{{ item.value.name }}"
+
+- name: Configuring SVI VRF interfaces - no ip redirects
+  cisco.nxos.nxos_l3_interfaces:
+    config:
+      - name: "{{ item.value.name }}"
+        redirects: false
+    state: merged
+  loop: "{{ svivrf_svis }}"
+  loop_control:
+    label: "{{ inventory_hostname }}/{{ item.value.name }}"
+
+- name: Configure SVI IP addresses
+  cisco.nxos.nxos_l3_interfaces:
+    config:
+      - name: "{{ item.value.name }}" 
+        ipv4:
+          - address: "{{ svi_ips[0].value.address }}"
+  when: svi_ips 
+  loop: "{{ svis }}"
+  loop_control: 
+    label: "{{ item.value.name }}"
+  vars:
+    svi_ips:  "{{ query('netbox.netbox.nb_lookup', 'ip-addresses',
+                  api_endpoint=nb_api_endpoint,
+                  api_filter='interface_id=' ~ item.value.id,
+                  token=nb_api_token) }}"

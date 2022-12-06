@@ -1,0 +1,13 @@
+---
+- name: Configure Base EVPN
+  import_tasks: base_evpn.yml
+  tags: build_base_evpn
+- name: Configure L3 leaf/spine interfaces
+  import_tasks: ls_intfs.yml
+  tags: build_ls_intfs
+- name: Configure loopback interfaces
+  import_tasks: loop_intfs.yml
+  tags: build_loop_intfs
+- name: Configure BGP
+  import_tasks: bgp.yml
+  tags: build_bgp

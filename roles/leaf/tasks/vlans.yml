@@ -1,0 +1,9 @@
+- name: Configure VLANs
+  cisco.nxos.nxos_vlans:
+    config:
+      - name: "{{ item.value.name }}"
+        vlan_id: "{{ item.value.vid }}" 
+        mapped_vni: "{{ item.value.l2vpn_termination.l2vpn.identifier }}"
+  loop: "{{ vlans }}"
+  loop_control:
+    label: "{{ inventory_hostname }}/{{ item.value.name }}"

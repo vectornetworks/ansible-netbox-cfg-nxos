@@ -1,0 +1,35 @@
+- name: Configure Interfaces as L3
+  cisco.nxos.nxos_interfaces: 
+    config:
+    - name: "{{ item.value.name }}"
+      enabled: true
+      mode: layer3
+    state: merged
+  loop: "{{ ls_intfs }}"
+  loop_control:
+    label: "{{ item.value.name }}"
+  
+
+- name: Configure leaf/spine IP addresses
+  cisco.nxos.nxos_l3_interfaces:
+    config:
+      - name: "{{ item.value.name }}" 
+        ipv4:
+          - address: "{{ ls_ips[0].value.address }}"
+  when: ls_ips 
+  loop: "{{ ls_intfs }}"
+  loop_control: 
+    label: "{{ item.value.name }}"
+  vars:
+    ls_ips:  "{{ query('netbox.netbox.nb_lookup', 'ip-addresses',
+                  api_endpoint=nb_api_endpoint,
+                  api_filter='interface_id=' ~ item.value.id,
+                  token=nb_api_token) }}"
+
+- name: Enabling PIM on leaf/spine interfaces
+  cisco.nxos.nxos_pim_interface:
+    interface: "{{ item.value.name }}"
+    sparse: yes
+  loop: "{{ ls_intfs }}"
+  loop_control: 
+    label: "{{ item.value.name }}"

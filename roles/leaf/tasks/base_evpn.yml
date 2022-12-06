@@ -1,0 +1,59 @@
+---
+- name: Enabling BGP Feature
+  cisco.nxos.nxos_feature:
+    feature: bgp
+    state: enabled
+
+- name: Enabling PIM Feature
+  cisco.nxos.nxos_feature:
+    feature: pim
+    state: enabled
+
+- name: Enabling interface-vlan Feature
+  cisco.nxos.nxos_feature:
+    feature: interface-vlan
+    state: enabled
+
+- name: Enabling vn-segment-vlan-based Feature
+  cisco.nxos.nxos_feature:
+    feature: vn-segment-vlan-based
+    state: enabled
+
+- name: Enabling nv overlay Feature
+  cisco.nxos.nxos_feature:
+    feature: nv overlay
+    state: enabled
+
+- name: Enabling global EVPN overlay
+  cisco.nxos.nxos_evpn_global:
+    nv_overlay_evpn: true
+
+- name: Configuring anycast MAC
+  cisco.nxos.nxos_overlay_global:
+    anycast_gateway_mac: 0200.4ec7.4ec7
+
+- name: Configuring NVE interface
+  cisco.nxos.nxos_interfaces:
+    config:
+    - name: nve1
+      enabled: true
+    state: merged
+
+- name: Configuring PIM RP
+  cisco.nxos.nxos_pim_rp_address:
+    rp_address: "{{ spine01_loop0 }}"
+    state: present
+
+# Unable to find support for 'next-hop-unchanged' in native route-map module
+- name: Configure 'next-hop-unchanged' route-map
+  tags: setnh
+  cisco.nxos.nxos_config:
+    lines:
+      - route-map NEXT-HOP-UNCHANGED permit 10
+
+- name: Configure 'next-hop-unchanged' route-map set condition
+  tags: setnh
+  cisco.nxos.nxos_config:
+    lines:
+      - set ip next-hop unchanged
+    parents: route-map NEXT-HOP-UNCHANGED permit 10

@@ -1,0 +1,34 @@
+---
+- name: Configure Base EVPN
+  import_tasks: base_evpn.yml
+  tags: build_base_evpn
+- name: Configure VLANs
+  import_tasks: vlans.yml
+  tags: build_vlans
+- name: Configure VRFs
+  import_tasks: vrfs.yml
+  tags: build_vrfs
+- name: Configure SVIs
+  import_tasks: svis.yml
+  tags: build_svis
+- name: Configure NVE
+  import_tasks: nve.yml
+  tags: build_nve
+- name: Configure L3 leaf/spine interfaces
+  import_tasks: ls_intfs.yml
+  tags: build_ls_intfs
+- name: Configure trunk interfaces
+  import_tasks: trunks.yml
+  tags: build_trunks
+- name: Configure external interfaces
+  import_tasks: ext_intfs.yml
+  tags: build_ext_intfs
+- name: Configure loopback interfaces
+  import_tasks: loop_intfs.yml
+  tags: build_loop_intfs
+- name: Configure BGP
+  import_tasks: bgp.yml
+  tags: build_bgp
+- name: Configure Static Routes
+  import_tasks: statics.yml
+  tags: build_statics

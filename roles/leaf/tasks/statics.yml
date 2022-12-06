@@ -1,0 +1,17 @@
+- name: Configure Static Routes
+  when: 
+    - item.value.custom_fields.staticroute
+    - item.value.custom_fields.origindevice
+    - item.value.custom_fields.origindevice.name == inventory_hostname
+  cisco.nxos.nxos_static_routes:
+    config:
+      - vrf: "{{ vrfs_dict[item.value.vrf.id].name }}"
+        address_families:
+          - afi: ipv4
+            routes:
+              - dest: "{{ item.value.prefix }}"
+                next_hops:
+                  - forward_router_address: "{{ item.value.custom_fields.nexthop }}"
+  loop: "{{ prefixes }}"
+  loop_control: 
+    label: "{{ item.value.prefix }}"

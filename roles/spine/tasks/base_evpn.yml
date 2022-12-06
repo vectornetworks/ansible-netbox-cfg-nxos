@@ -1,0 +1,33 @@
+---
+- name: Enabling BGP Feature
+  cisco.nxos.nxos_feature:
+    feature: bgp
+    state: enabled
+
+- name: Enabling PIM Feature
+  cisco.nxos.nxos_feature:
+    feature: pim
+    state: enabled
+
+- name: Enabling global EVPN overlay
+  cisco.nxos.nxos_evpn_global:
+    nv_overlay_evpn: true
+
+- name: Configuring PIM RP
+  cisco.nxos.nxos_pim_rp_address:
+    rp_address: "{{ spine01_loop0 }}"
+    state: present
+
+# Unable to find support for 'next-hop-unchanged' in native route-map module
+- name: Configure 'next-hop-unchanged' route-map
+  tags: setnh
+  cisco.nxos.nxos_config:
+    lines:
+      - route-map NEXT-HOP-UNCHANGED permit 10
+
+- name: Configure 'next-hop-unchanged' route-map set condition
+  tags: setnh
+  cisco.nxos.nxos_config:
+    lines:
+      - set ip next-hop unchanged
+    parents: route-map NEXT-HOP-UNCHANGED permit 10

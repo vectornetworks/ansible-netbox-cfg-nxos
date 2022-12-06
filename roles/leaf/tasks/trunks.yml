@@ -1,0 +1,22 @@
+- name: Configure Interfaces as L2 
+  cisco.nxos.nxos_interfaces: 
+    config:
+      - name: "{{ item.value.name }}"
+        enabled: true
+        mode: layer2
+    state: merged
+  loop: "{{ trunk_intfs }}"
+  loop_control:
+    label: "{{ item.value.name }}"
+
+- name: Configuring Trunked VLANs
+  cisco.nxos.nxos_l2_interfaces:
+    config:
+      - name: "{{ item.value.name }}"
+        mode: trunk
+        trunk:
+          allowed_vlans: "{{ item | json_query('value.tagged_vlans[*].vid') | join(',') }}" 
+  loop: "{{ trunk_intfs }}"
+  loop_control:
+    label: "{{ item.value.name }}"
+        

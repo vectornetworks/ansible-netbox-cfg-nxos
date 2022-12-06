@@ -1,0 +1,16 @@
+[fabric:children]
+spines
+leafs
+
+[fabric:vars]
+ansible_connection=httpapi
+ansible_user=admin
+ansible_password=admin
+ansible_network_os=nxos
+
+[spines]
+n9kv-spine-01 ansible_host=172.16.2.20
+
+[leafs]
+n9kv-leaf-01 ansible_host=172.16.2.21
+n9kv-leaf-02 ansible_host=172.16.2.22

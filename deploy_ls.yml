@@ -1,0 +1,17 @@
+---
+- hosts: leafs
+  name: Configure Fabric Leafs
+  gather_facts: false
+  vars:
+    nb_api_endpoint: "{{ lookup('ansible.builtin.env', 'NETBOX_URL') }}"
+    nb_api_token: "{{ lookup('ansible.builtin.env', 'NETBOX_API_TOKEN') }}"
+  roles:
+    - role: leaf
+- hosts: spines
+  name: Configure Fabric Spines
+  gather_facts: false
+  vars:
+    nb_api_endpoint: "{{ lookup('ansible.builtin.env', 'NETBOX_URL') }}"
+    nb_api_token: "{{ lookup('ansible.builtin.env', 'NETBOX_API_TOKEN') }}"
+  roles:
+    - role: spine

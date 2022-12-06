@@ -1,0 +1,30 @@
+- name: Configure VRFs
+  cisco.nxos.nxos_vrf:
+    name: "{{ item.value.name }}"
+    vni: "{{ item.value.custom_fields.l3vni }}"
+    rd: auto
+  loop: "{{ vrfs }}"
+  loop_control:
+    label: "{{ inventory_hostname }}/{{ item.value.name }}"
+
+- name: Configure VRF AFs
+  cisco.nxos.nxos_vrf_af:
+    vrf: "{{ item.value.name }}"
+    afi: ipv4
+    route_target_both_auto_evpn: true
+    state: present
+  loop: "{{ vrfs }}"
+  loop_control:
+    label: "{{ inventory_hostname }}/{{ item.value.name }}"
+
+- name: Configure VRF AFs
+  cisco.nxos.nxos_vrf_af:
+    vrf: "{{ item.value.name }}"
+    afi: ipv4
+    state: present
+    route_targets:
+      - rt: auto
+        direction: both 
+  loop: "{{ vrfs }}"
+  loop_control:
+    label: "{{ inventory_hostname }}/{{ item.value.name }}"

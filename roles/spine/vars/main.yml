@@ -1,0 +1,37 @@
+---
+# vars file for spine
+ls_intfs: "{{ query('netbox.netbox.nb_lookup', 'interfaces',
+                      api_endpoint=nb_api_endpoint,
+                      api_filter='tag=l3base device=' ~ inventory_hostname,
+                      token=nb_api_token) }}"
+loop_intfs: "{{ query('netbox.netbox.nb_lookup', 'interfaces',
+                      api_endpoint=nb_api_endpoint,
+                      api_filter='name__ic=Loopback type=virtual device=' ~ inventory_hostname,
+                      token=nb_api_token) }}"
+loop0_addrs: "{{ query('netbox.netbox.nb_lookup', 'ip-addresses',
+                              api_endpoint=nb_api_endpoint,
+                              api_filter='interface=Loopback0 device=' ~ inventory_hostname, 
+                              token=nb_api_token) }}"
+router_id: "{{ loop0_addrs[0].value.address | ansible.netcommon.ipaddr('address') }}"
+bgp_sessions: "{{ query('netbox.netbox.nb_lookup', 'session',
+                          api_endpoint=nb_api_endpoint,
+                          plugin='bgp',
+                          api_filter='device=' ~ inventory_hostname,
+                          token=nb_api_token) }}"
+bgp_asn: "{{ bgp_sessions[0].value.local_as.asn }}"
+spine01_loop_addrs: "{{ query('netbox.netbox.nb_lookup', 'ip-addresses',
+                              api_endpoint=nb_api_endpoint,
+                              api_filter='interface=Loopback0 device=n9kv-spine-01',
+                              token=nb_api_token) }}"
+spine01_loop0: "{{ spine01_loop_addrs[0].value.address | ansible.netcommon.ipaddr('address') }}"
+leaf01_loop_addrs: "{{ query('netbox.netbox.nb_lookup', 'ip-addresses',
+                              api_endpoint=nb_api_endpoint,
+                              api_filter='interface=Loopback0 device=n9kv-leaf-01',
+                              token=nb_api_token) }}"
+leaf01_loop0: "{{ leaf01_loop_addrs[0].value.address | ansible.netcommon.ipaddr('address') }}"
+leaf02_loop_addrs: "{{ query('netbox.netbox.nb_lookup', 'ip-addresses',
+                              api_endpoint=nb_api_endpoint,
+                              api_filter='interface=Loopback0 device=n9kv-leaf-02',
+                              token=nb_api_token) }}"
+leaf02_loop0: "{{ leaf02_loop_addrs[0].value.address | ansible.netcommon.ipaddr('address') }}"
+
