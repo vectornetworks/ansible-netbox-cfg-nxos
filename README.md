@@ -31,4 +31,9 @@ After the URL and token have been specified and assuming connectivity to the tes
 ```
 ansible-playbook -i <yourinventoryfile> deploy_ls.yml
 ```
+## Topology
+
+Here is a drawing that represents the end state of the fabric after it has been deployed.
+
+![N9Kv Vagrant BGP EVPN topo](images/n9kv_vagrant_topo_bgp_evpn.png)
 
